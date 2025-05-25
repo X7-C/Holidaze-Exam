@@ -1,35 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import MainLayout from '../components/layout/MainLayout';
+import HomePage from '../pages/homep/homePage';
+import LoginPage from '../pages/loginp/loginPage';
+import ProfilePage from '../pages/profilep/profilePage';
+import RegisterPage from '../pages/registerp/registerPage';
+import BookingPage from '../pages/bookingp/bookingPage';
+import VenuePage from '../pages/venuep/venuePage';
+import AllVenuesPage from '../pages/allVenues/allVenues';
+import ErrorBoundary from '../components/common/ErrorBoundary';
+import CreateVenue from '../pages/venueCreate/createVenue';
+import BookingManager from '../pages/manageBookings/bookingManager';
+import MyVenues from '../pages/managerVenues/MyVenues';
+import IndividVenue from '../pages/individ/individVenue';
+import EditVenuePage from '../pages/editVenue/editVenue';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App: React.FC = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Router>
+      <ErrorBoundary>
+        <Routes>
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/bookings" element={<BookingPage />} />
+            <Route path="/venues" element={<AllVenuesPage />} />
+            <Route path="/venues/:id" element={<VenuePage />} />
+            <Route path="/manage/create-venue" element={<CreateVenue />} />
+            <Route path="/manage/bookings" element={<BookingManager />} />
+            <Route path="/my-venues" element={<MyVenues />} />
+            <Route path="/individVenue/:id" element={<IndividVenue />} />
+            <Route path="/manage/edit/:id" element={<EditVenuePage />} />
 
-export default App
+          </Route>
+        </Routes>
+      </ErrorBoundary>
+    </Router>
+  );
+};
+
+export default App;
