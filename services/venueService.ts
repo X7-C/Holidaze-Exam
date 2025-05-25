@@ -1,11 +1,19 @@
 import { apiRequest } from './api';
 
-export const getManagerVenues = async (username: string) => {
-  return apiRequest(`/holidaze/profiles/${username}/venues`, { method: 'GET' }, true);
+export const getManagerVenues = async (username: string, page = 1, limit = 9) => {
+  return apiRequest(
+    `/holidaze/profiles/${username}/venues?page=${page}&limit=${limit}`,
+    { method: 'GET' },
+    true
+  );
 };
 
-export const getAllVenues = async () => {
-  return apiRequest('/holidaze/venues', { method: 'GET' });
+export const getAllVenues = async (page = 1, limit = 9, tag?: string) => {
+  const tagQuery = tag ? `&tag=${tag}` : '';
+  return apiRequest(
+    `/holidaze/venues?page=${page}&limit=${limit}${tagQuery}`,
+    { method: 'GET' }
+  );
 };
 
 export const getVenueById = async (id: string, params?: Record<string, any>) => {

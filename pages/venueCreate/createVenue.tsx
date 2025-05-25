@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Row, Col, Alert, InputGroup } from 'react-bootstrap';
 import { createVenue } from '../../services/venueService';
+import { FaStar } from 'react-icons/fa';
 
 const CreateVenuePage: React.FC = () => {
   const [form, setForm] = useState({
@@ -8,20 +9,26 @@ const CreateVenuePage: React.FC = () => {
     description: '',
     price: '',
     maxGuests: 1,
+    rating: 0,
     media: '',
     location: { address: '', city: '', country: '' },
     meta: { wifi: false, parking: false, breakfast: false, pets: false },
   });
   const [message, setMessage] = useState('');
+  const [hoverRating, setHoverRating] = useState(0);
+
+  const handleRating = (selectedRating: number) => {
+    setForm({ ...form, rating: selectedRating });
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
   const handleMetaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
-    setForm((prev) => ({
+    setForm(prev => ({
       ...prev,
       meta: { ...prev.meta, [name]: checked },
     }));
@@ -29,14 +36,14 @@ const CreateVenuePage: React.FC = () => {
 
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({
+    setForm(prev => ({
       ...prev,
       location: { ...prev.location, [name]: value },
     }));
   };
 
   const handleGuestChange = (delta: number) => {
-    setForm((prev) => ({
+    setForm(prev => ({
       ...prev,
       maxGuests: Math.max(1, prev.maxGuests + delta),
     }));
@@ -47,14 +54,15 @@ const CreateVenuePage: React.FC = () => {
     try {
       const mediaArray = form.media
         .split('\n')
-        .map((url) => ({ url: url.trim(), alt: form.name }))
-        .filter((m) => m.url);
+        .map(url => ({ url: url.trim(), alt: form.name }))
+        .filter(m => m.url);
 
       const payload = {
         name: form.name,
         description: form.description,
         price: parseFloat(form.price),
         maxGuests: form.maxGuests,
+        rating: form.rating,
         media: mediaArray,
         location: form.location,
         meta: form.meta,
@@ -69,6 +77,7 @@ const CreateVenuePage: React.FC = () => {
           description: '',
           price: '',
           maxGuests: 1,
+          rating: 0,
           media: '',
           location: { address: '', city: '', country: '' },
           meta: { wifi: false, parking: false, breakfast: false, pets: false },
@@ -130,9 +139,7 @@ const CreateVenuePage: React.FC = () => {
             <Form.Control
               type="number"
               value={form.maxGuests}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, maxGuests: Number(e.target.value) }))
-              }
+              onChange={(e) => setForm(prev => ({ ...prev, maxGuests: Number(e.target.value) }))}
               min={1}
             />
             <Button variant="outline-secondary" onClick={() => handleGuestChange(1)}>
@@ -141,6 +148,26 @@ const CreateVenuePage: React.FC = () => {
           </InputGroup>
         </Col>
       </Row>
+      <Form.Group className="mb-3">
+        <Form.Label>Rating</Form.Label>
+        <div className="d-flex">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <FaStar
+              key={star}
+              className="me-1"
+              size={24}
+              color={star <= (hoverRating || form.rating) ? '#ffc107' : '#e4e5e9'}
+              onMouseEnter={() => setHoverRating(star)}
+              onMouseLeave={() => setHoverRating(0)}
+              onClick={() => handleRating(star)}
+              style={{ cursor: 'pointer' }}
+            />
+          ))}
+          <span className="ms-2 align-self-center">
+            {form.rating > 0 ? `${form.rating} star${form.rating !== 1 ? 's' : ''}` : 'Not rated'}
+          </span>
+        </div>
+      </Form.Group>
 
       <Form.Group className="mb-3">
         <Form.Label>Image URLs (one per line)</Form.Label>

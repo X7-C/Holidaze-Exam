@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   Col,
@@ -8,6 +8,7 @@ import {
   Badge,
   Container,
   Button,
+  Form,
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useVenues } from '../../hooks/useVenues';
@@ -32,21 +33,25 @@ interface Venue {
 }
 
 const AllVenuesPage: React.FC = () => {
-  const { venues, loading, error, refreshVenues } = useVenues();
   const [page, setPage] = useState(1);
   const itemsPerPage = 9;
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const { 
+    venues, 
+    loading, 
+    error, 
+    totalPages,
+    refreshVenues 
+  } = useVenues(undefined, undefined, page, itemsPerPage);
 
-  useEffect(() => {
-    refreshVenues();
-  }, []);
-
-  const paginatedVenues = venues.slice(
-    (page - 1) * itemsPerPage,
-    page * itemsPerPage
+  const filteredVenues = venues.filter((venue: Venue) =>
+    venue.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    venue.location?.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    venue.location?.country?.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  const totalPages = Math.ceil(venues.length / itemsPerPage);
 
-  if (loading) {
+  if (loading && page === 1) {
     return (
       <div className="d-flex justify-content-center mt-5">
         <Spinner animation="border" variant="primary" />
@@ -81,14 +86,26 @@ const AllVenuesPage: React.FC = () => {
         </Button>
       </div>
 
-      {venues.length === 0 ? (
+      <Form className="mb-4">
+        <Form.Control
+          type="text"
+          placeholder="Search venues by name, city or country..."
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setPage(1);
+          }}
+        />
+      </Form>
+
+      {filteredVenues.length === 0 ? (
         <Alert variant="info" className="text-center">
-          No venues found. Please try again later.
+          No venues found.
         </Alert>
       ) : (
         <>
           <Row xs={1} md={2} lg={3} className="g-4">
-            {paginatedVenues.map((venue: Venue) => (
+            {filteredVenues.map((venue: Venue) => (
               <Col key={venue.id}>
                 <Card className="h-100 shadow-sm">
                   <Card.Img
@@ -142,31 +159,20 @@ const AllVenuesPage: React.FC = () => {
 
                     <div className="mb-3">
                       {venue.meta.wifi && (
-                        <Badge bg="light" text="dark" className="me-1">
-                          WiFi
-                        </Badge>
+                        <Badge bg="light" text="dark" className="me-1">WiFi</Badge>
                       )}
                       {venue.meta.parking && (
-                        <Badge bg="light" text="dark" className="me-1">
-                          Parking
-                        </Badge>
+                        <Badge bg="light" text="dark" className="me-1">Parking</Badge>
                       )}
                       {venue.meta.breakfast && (
-                        <Badge bg="light" text="dark" className="me-1">
-                          Breakfast
-                        </Badge>
+                        <Badge bg="light" text="dark" className="me-1">Breakfast</Badge>
                       )}
                       {venue.meta.pets && (
-                        <Badge bg="light" text="dark" className="me-1">
-                          Pets
-                        </Badge>
+                        <Badge bg="light" text="dark" className="me-1">Pets</Badge>
                       )}
                     </div>
 
-                    <Link
-                      to={`/individVenue/${venue.id}`}
-                      className="btn btn-primary mt-auto"
-                    >
+                    <Link to={`/individVenue/${venue.id}`} className="btn btn-primary mt-auto">
                       View Details
                     </Link>
                   </Card.Body>
@@ -174,25 +180,26 @@ const AllVenuesPage: React.FC = () => {
               </Col>
             ))}
           </Row>
-        <div className="d-flex justify-content-center mt-4 mb-5 gap-2">
-       <Button
-        variant="secondary"
-        disabled={page === 1}
-        onClick={() => setPage((p) => p - 1)}
-        >
-        Previous
-        </Button>
-          <span className="align-self-center page-label">
+
+          <div className="d-flex justify-content-center mt-4 mb-5 gap-2">
+            <Button
+              variant="secondary"
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Previous
+            </Button>
+            <span className="align-self-center">
               Page {page} of {totalPages}
-          </span>
-        <Button
-        variant="secondary"
-        disabled={page === totalPages}
-        onClick={() => setPage((p) => p + 1)}
-        >
-        Next
-      </Button>
-      </div>
+            </span>
+            <Button
+              variant="secondary"
+              disabled={page === totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
         </>
       )}
     </Container>

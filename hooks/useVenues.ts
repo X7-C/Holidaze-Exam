@@ -7,29 +7,31 @@ import {
   deleteVenue,
 } from '../services/venueService';
 
-export const useVenues = (username?: string, tag?: string) => {
+export const useVenues = (username?: string, tag?: string, page = 1, limit = 9) => {
   const [venues, setVenues] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchVenues = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = username
-        ? await getManagerVenues(username)
-        : await getAllVenues();
+      let response;
+      if (username) {
+        response = await getManagerVenues(username, page, limit);
+      } else {
+        response = await getAllVenues(page, limit, tag);
+      }
 
-      const venuesData = response.data?.data || response.data || [];
-
-      const filtered = tag
-        ? venuesData.filter((v: any) =>
-            v.tags?.map((t: string) => t.toLowerCase()).includes(tag.toLowerCase())
-          )
-        : venuesData;
-
-      setVenues(Array.isArray(filtered) ? filtered : []);
+      const venuesData = response.data?.data || [];
+      const meta = response.data?.meta || {};
+      
+      setVenues(Array.isArray(venuesData) ? venuesData : []);
+      setTotalCount(meta.totalCount || venuesData.length);
+      setTotalPages(Math.ceil((meta.totalCount || venuesData.length) / limit));
     } catch (err: any) {
       console.error('Error fetching venues:', err);
       setError(err.message || 'Failed to fetch venues');
@@ -68,12 +70,14 @@ export const useVenues = (username?: string, tag?: string) => {
 
   useEffect(() => {
     fetchVenues();
-  }, [username, tag]);
+  }, [username, tag, page, limit]);
 
   return {
     venues,
     loading,
     error,
+    totalCount,
+    totalPages,
     addVenue,
     editVenue,
     removeVenue,
