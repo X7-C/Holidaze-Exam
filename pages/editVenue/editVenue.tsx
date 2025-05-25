@@ -19,18 +19,35 @@ const EditVenuePage: React.FC = () => {
 
   useEffect(() => {
     const fetchVenue = async () => {
-      const response = await getVenueById(id!);
-      const venue = response?.data;
-      if (venue) {
+      try {
+        const response = await getVenueById(id!, { _owner: true });
+        const venue = response?.data;
+
+        if (!venue) {
+          throw new Error('Venue not found');
+        }
+
         setForm({
           name: venue.name || '',
           description: venue.description || '',
-          price: venue.price.toString(),
-          maxGuests: venue.maxGuests,
-          media: venue.media.map((m: any) => m.url).join('\n'),
-          location: venue.location || {},
-          meta: venue.meta || {},
+          price: (venue.price ?? 0).toString(),
+          maxGuests: venue.maxGuests || 1,
+          media: (venue.media || []).map((m: any) => m?.url || '').join('\n'),
+          location: {
+            address: venue.location?.address || '',
+            city: venue.location?.city || '',
+            country: venue.location?.country || ''
+          },
+          meta: {
+            wifi: venue.meta?.wifi || false,
+            parking: venue.meta?.parking || false,
+            breakfast: venue.meta?.breakfast || false,
+            pets: venue.meta?.pets || false
+          }
         });
+      } catch (err) {
+        console.error(err);
+        setMessage('Failed to load venue data');
       }
     };
     fetchVenue();

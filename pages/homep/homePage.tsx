@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Spinner, Form, Alert, Container, Button } from 'react-bootstrap';
 import { apiRequest } from '../../services/api';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -17,13 +17,6 @@ interface Venue {
   price: number;
 }
 
-const categories = [
-  { label: 'Cabins', tag: 'cabins', image: 'https://placehold.co/100x100?text=Cabins' },
-  { label: 'Luxury', tag: 'luxury', image: 'https://placehold.co/100x100?text=Luxury' },
-  { label: 'Camping', tag: 'camping', image: 'https://placehold.co/100x100?text=Camping' },
-  { label: 'Beach', tag: 'beach', image: 'https://placehold.co/100x100?text=Beach' },
-];
-
 const HomePage: React.FC = () => {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +24,6 @@ const HomePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
   const [guests, setGuests] = useState(1);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchVenues = async () => {
@@ -78,7 +70,7 @@ const HomePage: React.FC = () => {
               />
             </Form.Group>
           </Col>
-          <Col md={3}>
+          <Col md={4}>
             <Form.Group>
               <Form.Label>Dates</Form.Label>
               <DatePicker
@@ -92,7 +84,7 @@ const HomePage: React.FC = () => {
               />
             </Form.Group>
           </Col>
-          <Col md={3}>
+          <Col md={4}>
             <Form.Group>
               <Form.Label>Guests</Form.Label>
               <div className="d-flex align-items-center gap-2">
@@ -101,11 +93,6 @@ const HomePage: React.FC = () => {
                 <Button variant="outline-secondary" onClick={incrementGuests}>+</Button>
               </div>
             </Form.Group>
-          </Col>
-          <Col md={2} className="d-flex align-items-end">
-            <Button variant="primary" className="w-100">
-              Search
-            </Button>
           </Col>
         </Row>
       </Card>
@@ -129,26 +116,34 @@ const HomePage: React.FC = () => {
         ) : (
           <Row>
             {filteredVenues.slice(0, 4).map((venue) => (
-              <Col key={venue.id} md={3} className="mb-4">
-                <Card className="h-100 venue-card">
+              <Col key={venue.id} xs={12} sm={6} md={3} className="mb-4">
+                <Card className="h-100 shadow-sm">
                   <Card.Img
                     variant="top"
                     src={venue.media?.[0]?.url || 'https://placehold.co/600x400?text=No+Image'}
                     alt={venue.media?.[0]?.alt || venue.name}
-                    style={{ height: '200px', objectFit: 'cover' }}
+                    style={{ height: '180px', objectFit: 'cover' }}
                   />
-                  <Card.Body>
-                    <div className="d-flex justify-content-between">
-                      <Card.Title>{venue.name}</Card.Title>
-                      <div>
-                        <span className="text-warning">★</span> {venue.rating || '4.5'}
-                      </div>
+                  <Card.Body className="d-flex flex-column">
+                    <div className="d-flex justify-content-between align-items-start mb-1">
+                      <Card.Title className="flex-grow-1 text-truncate" title={venue.name}>
+                        {venue.name}
+                      </Card.Title>
+                      <small className="text-muted">
+                        <span className="text-warning">★</span>{' '}
+                        {venue.rating?.toFixed(1) || '4.5'}
+                      </small>
                     </div>
-                    <Card.Text>{venue.location?.city || 'Unknown location'}</Card.Text>
+                    <Card.Text className="text-truncate text-muted mb-1">
+                      {venue.location?.city || 'Unknown location'}
+                    </Card.Text>
                     <Card.Text className="text-muted">
                       ${venue.price} per night
                     </Card.Text>
-                    <Link to={`/individVenue/${venue.id}`} className="btn btn-outline-primary w-100">
+                    <Link
+                      to={`/individVenue/${venue.id}`}
+                      className="btn btn-outline-primary mt-auto text-center"
+                    >
                       View details
                     </Link>
                   </Card.Body>
@@ -157,36 +152,6 @@ const HomePage: React.FC = () => {
             ))}
           </Row>
         )}
-      </section>
-
-      <section className="mb-5 pb-5">
-        <h2 className="mb-4">Categories</h2>
-        <Row className="g-3">
-          {categories.map((cat) => (
-            <Col xs={6} md={3} key={cat.tag} className="text-center">
-              <div
-                onClick={() => navigate(`/venues?tag=${cat.tag}`)}
-                style={{
-                  cursor: 'pointer',
-                  borderRadius: '50%',
-                  overflow: 'hidden',
-                  width: 100,
-                  height: 100,
-                  margin: '0 auto',
-                  border: '2px solid #ccc',
-                }}
-              >
-                <img
-                  src={cat.image}
-                  alt={cat.label}
-                  className="img-fluid"
-                  style={{ objectFit: 'cover', height: '100%' }}
-                />
-              </div>
-              <div className="mt-2">{cat.label}</div>
-            </Col>
-          ))}
-        </Row>
       </section>
     </Container>
   );

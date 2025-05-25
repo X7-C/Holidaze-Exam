@@ -1,26 +1,42 @@
 import { apiRequest } from './api';
 
-export const createBooking = async (venueId: string, bookingData: {
-  dateFrom: string;
-  dateTo: string;
-  guests: number;
-}) => {
-  const response = await apiRequest(`/holidaze/bookings`, {
-    method: 'POST',
-    body: JSON.stringify({ ...bookingData, venueId }),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  }, true);
-  return response.data;
-};
+export const createBooking = async (
+  venueId: string,
+  bookingData: {
+    dateFrom: string;
+    dateTo: string;
+    guests: number;
+  }
+) => {
+  const response = await apiRequest(
+    '/holidaze/bookings',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        ...bookingData,
+        venueId,
+        guests: Number(bookingData.guests),
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+    true 
+  );
 
-export const getManagerBookings = async () => {
-  const response = await apiRequest('/holidaze/profiles/venue-manager-bookings', {}, true);
+  if (response.error) {
+    throw new Error(response.error || 'Booking failed.');
+  }
+
   return response.data;
 };
 
 export const getUserBookings = async (username: string) => {
-  const response = await apiRequest(`/holidaze/profiles/${username}/bookings?_venue=true`, {}, true);
-  return response.data;
+  return apiRequest(`/holidaze/profiles/${username}/bookings?_venue=true`, {
+    method: 'GET',
+  }, true);
+};
+
+export const getManagerBookings = async (username: string) => {
+  return apiRequest(`/holidaze/profiles/${username}/bookings?_venue=true`, { method: 'GET' }, true);
 };

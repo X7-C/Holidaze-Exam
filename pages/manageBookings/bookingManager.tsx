@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Alert, Spinner } from 'react-bootstrap';
 import { getManagerBookings } from '../../services/bookingService';
+import { useAuth } from '../../hooks/useAuth';
+
 
 interface Booking {
   id: string;
@@ -19,20 +21,26 @@ const BookingManager: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { user } = useAuth();
 
-  useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const response = await getManagerBookings();
-        setBookings(response.data || []);
-      } catch (err) {
-        setError('Failed to load bookings');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchBookings();
-  }, []);
+
+useEffect(() => {
+  const fetchBookings = async () => {
+    if (!user) return;
+
+    try {
+      const response = await getManagerBookings(user.name);
+      setBookings(response.data?.data || response.data || []);
+    } catch (err) {
+      setError('Failed to load bookings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchBookings();
+}, [user]);
+
 
   return (
     <div className="p-4">

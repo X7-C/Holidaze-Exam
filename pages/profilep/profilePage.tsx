@@ -6,7 +6,11 @@ import { getUserBookings } from '../../services/bookingService';
 
 const ProfilePage: React.FC = () => {
   const { user, login } = useAuth();
-  const [avatar, setAvatar] = useState(user?.avatar || '');
+
+  const avatarUrl = (user?.avatar as { url?: string })?.url || 
+                    (typeof user?.avatar === 'string' ? user.avatar : '');
+
+  const [avatar, setAvatar] = useState(avatarUrl);
   const [name, setName] = useState(user?.name || '');
   const [message, setMessage] = useState('');
   const [bookings, setBookings] = useState<any[]>([]);
@@ -15,16 +19,17 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       if (!user) return;
-      const result = await getUserBookings(user.name);
-
-
-      if (result?.error) {
-        setMessage(result.error);
-      } else {
-        setBookings(result.data?.data || []);
+      try {
+        const result = await getUserBookings(user.name);
+        const bookingsData = result?.data?.data || result?.data || [];
+        setBookings(Array.isArray(bookingsData) ? bookingsData : []);
+      } catch (err: any) {
+        setMessage(err.message || 'Failed to load bookings');
+      } finally {
+        setLoadingBookings(false);
       }
-      setLoadingBookings(false);
     };
+
     fetchBookings();
   }, [user]);
 
@@ -35,14 +40,27 @@ const ProfilePage: React.FC = () => {
       const token = localStorage.getItem('token');
       if (!token || !user) throw new Error('Not logged in');
 
-      await updateProfile(user.name, {
-        email: user.email,
+      const updateData = {
+        avatar: {
+          url: avatar,
+          alt: `${user.name}'s avatar`,
+        },
         venueManager: user.venueManager,
-      });
+      };
 
-      login({ ...user, avatar, name }, token);
+      const updatedProfile = await updateProfile(user.name, updateData);
+
+      const updatedUser = {
+        ...user,
+        avatar: updatedProfile?.avatar?.url || avatar,
+        name,
+      };
+
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      login(updatedUser, token);
       setMessage('Profile updated successfully!');
     } catch (err: any) {
+      console.error('Update error:', err);
       setMessage(err.message || 'Update failed');
     }
   };
@@ -51,10 +69,30 @@ const ProfilePage: React.FC = () => {
     if (e.target.files?.[0]) {
       try {
         const file = e.target.files[0];
+
+        if (!file.type.startsWith('image/')) {
+          throw new Error('Only image files are allowed');
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+          throw new Error('File size must be less than 2MB');
+        }
+
         const response = await updateAvatar(user.name, file);
-        setAvatar(response.avatar);
+        const newAvatarUrl = (response?.avatar as { url?: string })?.url || '';
+
+        const updatedUser = {
+          ...user,
+          avatar: newAvatarUrl,
+        };
+
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        login(updatedUser, localStorage.getItem('token')!);
+
+        setAvatar(newAvatarUrl);
         setMessage('Avatar uploaded successfully!');
       } catch (err: any) {
+        console.error('Upload error:', err);
         setMessage(err.message || 'Avatar upload failed');
       }
     }
@@ -80,12 +118,16 @@ const ProfilePage: React.FC = () => {
                 onChange={(e) => setName(e.target.value)}
               />
             </Form.Group>
+
             <Form.Group className="mb-3">
-              <Form.Label>Avatar URL</Form.Label>
+              <Form.Label>Avatar</Form.Label>
               <Form.Control
+                type="text"
                 value={avatar}
                 onChange={(e) => setAvatar(e.target.value)}
+                placeholder="Image URL"
               />
+              <Form.Text className="text-muted">Or upload an image:</Form.Text>
               <Form.Control
                 type="file"
                 accept="image/*"
@@ -93,11 +135,13 @@ const ProfilePage: React.FC = () => {
                 className="mt-2"
               />
             </Form.Group>
+
             <div className="d-grid gap-2">
               <Button variant="primary" onClick={handleUpdate}>
                 Update Profile
               </Button>
             </div>
+
             {message && <Alert variant="info" className="mt-3">{message}</Alert>}
           </Card.Body>
         </Card>
