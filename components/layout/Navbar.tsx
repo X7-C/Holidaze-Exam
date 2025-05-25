@@ -24,17 +24,15 @@ const NavbarComponent: React.FC = () => {
 
             {user ? (
               <>
-                {user.venueManager ? (
-              <>
-             <Nav.Link as={Link} to="/manage/create-venue">
-                <span>Create Venue</span>
-                  <Badge bg="success" className="ms-1">New</Badge>
-                     </Nav.Link>
-                     <Nav.Link as={Link} to="/my-venues">My Venues</Nav.Link>
+                {user.venueManager && (
+                  <>
+                    <Nav.Link as={Link} to="/manage/create-venue">
+                      <span>Create Venue</span>
+                      <Badge bg="success" className="ms-1">New</Badge>
+                    </Nav.Link>
+                    <Nav.Link as={Link} to="/my-venues">My Venues</Nav.Link>
                   </>
-                ) : (
-                    <Nav.Link as={Link} to="/bookings">My Bookings</Nav.Link>
-                  )}
+                )}
 
                 <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
               </>
