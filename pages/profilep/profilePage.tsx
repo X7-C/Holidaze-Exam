@@ -7,11 +7,10 @@ import { getUserBookings } from '../../services/bookingService';
 const ProfilePage: React.FC = () => {
   const { user, login } = useAuth();
 
-  const avatarUrl = (user?.avatar as { url?: string })?.url || 
-                    (typeof user?.avatar === 'string' ? user.avatar : '');
+  const avatarUrl = (user?.avatar as { url?: string })?.url ||
+    (typeof user?.avatar === 'string' ? user.avatar : '');
 
   const [avatar, setAvatar] = useState(avatarUrl);
-  const [name, setName] = useState(user?.name || '');
   const [message, setMessage] = useState('');
   const [bookings, setBookings] = useState<any[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
@@ -53,7 +52,6 @@ const ProfilePage: React.FC = () => {
       const updatedUser = {
         ...user,
         avatar: updatedProfile?.avatar?.url || avatar,
-        name,
       };
 
       localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -111,13 +109,12 @@ const ProfilePage: React.FC = () => {
               alt="User avatar"
               className="mb-3"
             />
-            <Form.Group className="mb-2">
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </Form.Group>
+            <div className="mb-3">
+              <strong>Name:</strong>
+              <div className="profile-name-display">
+                {user.name}
+              </div>
+            </div>
 
             <Form.Group className="mb-3">
               <Form.Label>Avatar</Form.Label>

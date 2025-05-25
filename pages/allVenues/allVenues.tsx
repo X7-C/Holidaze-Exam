@@ -174,26 +174,25 @@ const AllVenuesPage: React.FC = () => {
               </Col>
             ))}
           </Row>
-
-          <div className="d-flex justify-content-center mt-4 gap-2">
-            <Button
-              variant="secondary"
-              disabled={page === 1}
-              onClick={() => setPage((p) => p - 1)}
-            >
-              Previous
-            </Button>
-            <span className="align-self-center">
+        <div className="d-flex justify-content-center mt-4 mb-5 gap-2">
+       <Button
+        variant="secondary"
+        disabled={page === 1}
+        onClick={() => setPage((p) => p - 1)}
+        >
+        Previous
+        </Button>
+          <span className="align-self-center page-label">
               Page {page} of {totalPages}
-            </span>
-            <Button
-              variant="secondary"
-              disabled={page === totalPages}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              Next
-            </Button>
-          </div>
+          </span>
+        <Button
+        variant="secondary"
+        disabled={page === totalPages}
+        onClick={() => setPage((p) => p + 1)}
+        >
+        Next
+      </Button>
+      </div>
         </>
       )}
     </Container>

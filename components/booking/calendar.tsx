@@ -1,6 +1,6 @@
 import React from 'react';
 import DatePicker from 'react-datepicker';
-import { eachDayOfInterval } from 'date-fns';
+import { eachDayOfInterval, isSameDay } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 
 interface BookingCalendarProps {
@@ -24,22 +24,15 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
     })
   );
 
-  const isSameDay = (a: Date, b: Date) =>
-    a.getDate() === b.getDate() &&
-    a.getMonth() === b.getMonth() &&
-    a.getFullYear() === b.getFullYear();
-
   return (
     <DatePicker
       selected={selectedDate}
       onChange={onChange}
       inline
       excludeDates={bookedDates}
-      highlightDates={bookedDates}
+      highlightDates={[{ "booked-date": bookedDates }]}
       dayClassName={(date) =>
-        bookedDates.some((d) => isSameDay(d, date))
-          ? 'react-datepicker__day--highlighted'
-          : ''
+        bookedDates.some((d) => isSameDay(d, date)) ? 'booked-date' : ''
       }
     />
   );
