@@ -80,22 +80,6 @@ Then visit: `http://localhost:5173` in your browser.
 
 ---
 
-## 📁 File Structure (simplified)
-
-/src
-├── components/ # Reusable UI components
-├── pages/ # Main route components
-├── services/ # API service files
-├── hooks/ # Custom hooks (e.g. auth, bookings)
-├── assets/ # Images and icons
-├── styles/ # Bootstrap and custom styling
-
-yaml
-Copy
-Edit
-
----
-
 
 ## 📚 Resources
 
