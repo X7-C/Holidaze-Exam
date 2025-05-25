@@ -10,8 +10,9 @@ export const getAllVenues = async () => {
   return apiRequest('/holidaze/venues', { method: 'GET' });
 };
 
-export const getVenueById = async (id: string) => {
-  return apiRequest(`/holidaze/venues/${id}`, { method: 'GET' });
+export const getVenueById = async (id: string, params?: Record<string, any>) => {
+  const query = params ? `?${new URLSearchParams(params).toString()}` : '';
+  return apiRequest(`/holidaze/venues/${id}${query}`, { method: 'GET' });
 };
 
 export const createVenue = async (data: any) => {

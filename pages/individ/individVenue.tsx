@@ -109,10 +109,8 @@ const IndividVenue: React.FC = () => {
   const nights = calculateNights();
   const totalPrice = nights * (venue?.price || 0);
 
-  const isVenueManager = Boolean(user?.venueManager) &&
-    (user?.name === venue?.owner?.name ||
-     user?.name === venue?.manager?.name ||
-     user?.id === venue?.owner?.id);
+const isVenueManager = Boolean(user?.venueManager) &&
+  (user?.name === venue?.owner?.name || user?.name === venue?.manager?.name);
 
   const isDateBooked = (date: Date) =>
     bookedDates.some((booked) => isSameDay(booked, date));
