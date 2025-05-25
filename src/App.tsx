@@ -11,7 +11,7 @@ import AllVenuesPage from '../pages/allVenues/allVenues';
 import ErrorBoundary from '../components/common/ErrorBoundary';
 import CreateVenue from '../pages/venueCreate/createVenue';
 import BookingManager from '../pages/manageBookings/bookingManager';
-import MyVenues from '../pages/managerVenues/MyVenues';
+import MyVenues from '../pages/managerVenues/myVenues';
 import IndividVenue from '../pages/individ/individVenue';
 import EditVenuePage from '../pages/editVenue/editVenue';
 
